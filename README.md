@@ -19,6 +19,7 @@ Beta interfaces may change after review. Planned entries must not be treated as 
 - Search and filters for catalog type and maturity.
 - Detail pages covering capabilities, compatibility, tags, release status, and download/quick-start when a release exists.
 - Guidance for evaluating catalog entries.
+- A public blog at `/blog/` with guides and build-in-public notes.
 - Public project [principles and catalog policy](web/src/pages/about.astro), plus [sponsorship information](web/src/pages/sponsors.astro).
 - Structured metadata, accessible navigation, responsive layouts, and a custom 404 page.
 
@@ -106,7 +107,9 @@ bunx playwright install chromium
 │   ├── src/
 │   │   ├── components/
 │   │   ├── config/
-│   │   ├── content/catalog/
+│   │   ├── content/
+│   │   │   ├── blog/
+│   │   │   └── catalog/
 │   │   ├── layouts/
 │   │   ├── lib/
 │   │   ├── pages/
