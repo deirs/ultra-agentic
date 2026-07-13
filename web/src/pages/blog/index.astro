@@ -1,0 +1,76 @@
+---
+import { getCollection } from 'astro:content';
+
+import BlogCard from '../../components/BlogCard.astro';
+import SiteFooter from '../../components/SiteFooter.astro';
+import SiteHeader from '../../components/SiteHeader.astro';
+import SponsorCTA from '../../components/SponsorCTA.astro';
+import Layout from '../../layouts/Layout.astro';
+import { isPublishedBlogEntry, sortBlogEntries } from '../../lib/blog';
+
+const posts = sortBlogEntries((await getCollection('blog')).filter(isPublishedBlogEntry));
+---
+
+<Layout
+	title="Blog"
+	description="Guides and build-in-public notes on MCP servers, agent skills, datasets, and honest catalog maturity."
+>
+	<SiteHeader slot="header" />
+
+	<header class="page-hero section-pad">
+		<div class="site-container hero-grid">
+			<div>
+				<p class="utility-label">Guides / roadmap notes</p>
+				<h1>Write less mythology. Ship clearer agent infrastructure.</h1>
+			</div>
+			<p>
+				Short English posts on composing MCP connections, skills, and datasets—and on keeping
+				catalog maturity labels honest while building in public.
+			</p>
+		</div>
+	</header>
+
+	<section class="section-pad">
+		<div class="site-container blog-list">
+			{posts.map((entry) => <BlogCard entry={entry} />)}
+		</div>
+	</section>
+
+	<SponsorCTA />
+	<SiteFooter slot="footer" />
+</Layout>
+
+<style>
+	.page-hero {
+		border-bottom: 1px solid var(--color-line);
+		background: color-mix(in srgb, var(--color-panel) 68%, transparent);
+	}
+
+	.hero-grid {
+		display: grid;
+		grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+		align-items: end;
+		gap: clamp(2rem, 6vw, 6rem);
+	}
+
+	h1 {
+		max-width: 15ch;
+		margin-top: 0.8rem;
+		font-size: var(--text-display);
+	}
+
+	.hero-grid > p {
+		color: var(--color-muted);
+	}
+
+	.blog-list {
+		display: grid;
+		gap: 1rem;
+	}
+
+	@media (max-width: 50rem) {
+		.hero-grid {
+			grid-template-columns: 1fr;
+		}
+	}
+</style>

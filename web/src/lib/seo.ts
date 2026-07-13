@@ -3,8 +3,10 @@ import {
   catalogMaturityLabels,
   catalogTypeLabels,
   type CatalogMaturity,
+  type CatalogRelease,
   type CatalogType
 } from './catalog';
+import { blogCategoryLabels, type BlogCategory } from './blog';
 
 type CatalogEntrySeoData = {
   title: string;
@@ -13,6 +15,23 @@ type CatalogEntrySeoData = {
   maturity: CatalogMaturity;
   tags: readonly string[];
   source?: string;
+  release?: CatalogRelease;
+};
+
+type BlogPostSeoData = {
+  title: string;
+  description: string;
+  pubDate: Date;
+  updatedDate?: Date;
+  author: string;
+  category: BlogCategory;
+  tags: readonly string[];
+};
+
+const catalogProgrammingLanguages: Record<CatalogType, string> = {
+  mcp: 'TypeScript',
+  skill: 'Markdown',
+  dataset: 'JSON'
 };
 
 type PageMetadataOptions = {
@@ -68,6 +87,27 @@ export function buildCatalogEntryStructuredData(
   const pageUrl =
     config.siteUrl && pathname ? new URL(pathname, config.siteUrl).toString() : undefined;
 
+  if (entry.maturity !== 'planned' && entry.source && entry.release) {
+    const downloadUrl = config.siteUrl
+      ? new URL(entry.release.download, config.siteUrl).toString()
+      : entry.release.download;
+
+    return {
+      '@context': 'https://schema.org',
+      '@type': 'SoftwareSourceCode',
+      name: entry.title,
+      description: entry.summary,
+      codeRepository: entry.source,
+      softwareVersion: entry.release.version,
+      downloadUrl,
+      isAccessibleForFree: true,
+      programmingLanguage: catalogProgrammingLanguages[entry.type],
+      creativeWorkStatus: catalogMaturityLabels[entry.maturity],
+      keywords: [...entry.tags],
+      ...(pageUrl ? { url: pageUrl } : {})
+    };
+  }
+
   return {
     '@context': 'https://schema.org',
     '@type': 'TechArticle',
@@ -76,8 +116,29 @@ export function buildCatalogEntryStructuredData(
     genre: catalogTypeLabels[entry.type],
     creativeWorkStatus: catalogMaturityLabels[entry.maturity],
     keywords: [...entry.tags],
-    ...(pageUrl ? { url: pageUrl } : {}),
-    ...(entry.source ? { sameAs: entry.source } : {})
+    ...(pageUrl ? { url: pageUrl } : {})
+  };
+}
+
+export function buildBlogPostStructuredData(
+  entry: BlogPostSeoData,
+  config: SiteConfig,
+  pathname?: string
+) {
+  const pageUrl =
+    config.siteUrl && pathname ? new URL(pathname, config.siteUrl).toString() : undefined;
+
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'BlogPosting',
+    headline: entry.title,
+    description: entry.description,
+    datePublished: entry.pubDate.toISOString(),
+    ...(entry.updatedDate ? { dateModified: entry.updatedDate.toISOString() } : {}),
+    author: { '@type': 'Organization', name: entry.author },
+    keywords: [...entry.tags],
+    articleSection: blogCategoryLabels[entry.category],
+    ...(pageUrl ? { url: pageUrl } : {})
   };
 }
 
